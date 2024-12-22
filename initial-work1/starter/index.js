@@ -79,60 +79,56 @@
 
 // --------- Implementing Products Page------------
 
-
-
 const fs = require("fs");
 const url = require("url");
 const http = require("http");
 
-const replaceProd = require('./modules/replaceProd')
+const replaceProd = require("./modules/replaceProd");
 const productOverview = fs.readFileSync(
-  `${__dirname}/templates/product-overview.html` , 'utf-8'
+  `${__dirname}/templates/product-overview.html`,
+  "utf-8"
 );
-const productCard = fs.readFileSync(`${__dirname}/templates/product-card.html` , 'utf-8');
-const productSingle = fs.readFileSync(`${__dirname}/templates/product.html` , 'utf-8');
-const data = fs.readFileSync(`${__dirname}/dev-data/data.json` , 'utf-8');
+const productCard = fs.readFileSync(
+  `${__dirname}/templates/product-card.html`,
+  "utf-8"
+);
+const productSingle = fs.readFileSync(
+  `${__dirname}/templates/product.html`,
+  "utf-8"
+);
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const objData = JSON.parse(data);
 
-
-  
-  const server = http.createServer((req, res) => {
-    console.log(req.url);
-    const {query, pathname } = (url.parse(req.url , true));
+const server = http.createServer((req, res) => {
+  console.log(req.url);
+  const { query, pathname } = url.parse(req.url, true);
   // const pathname = req.url;
-
 
   if (pathname === "/" || pathname === "/overview") {
     res.writeHead(400, {
       "content-Type": "text/html",
     });
 
-    const prodList = objData.map((item) => replaceProd(productCard, item)).join();
+    const prodList = objData
+      .map((item) => replaceProd(productCard, item))
+      .join();
 
-    const op = productOverview.replace(/{ProductCardDynamic}/g, prodList)
+    const op = productOverview.replace(/{ProductCardDynamic}/g, prodList);
     res.end(op);
-}
-
-
-else if (pathname === "/product") {
-   const prod = objData[query.id];
-   const otp = replaceProd(productSingle,prod);
+  } else if (pathname === "/product") {
+    const prod = objData[query.id];
+    const otp = replaceProd(productSingle, prod);
     res.end(otp);
-  } 
-  
-  
-  else if (pathname === "/api") {
+  } else if (pathname === "/api") {
     res.writeHead(200, {
       "content-Type": "application/json",
     });
     res.end(data);
-  }
-
-  else{
+  } else {
     res.writeHead(404, {
-        "content-Type": "text/html",
-      });
-      res.end(`<h1> Page Not Found ${pathname} </h1> `);
+      "content-Type": "text/html",
+    });
+    res.end(`<h1> Page Not Found ${pathname} </h1> `);
   }
 });
 const port = 8000;
